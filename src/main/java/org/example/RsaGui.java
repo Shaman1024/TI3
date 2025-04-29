@@ -127,18 +127,6 @@ public class RsaGui extends JFrame {
         }
     }
 
-    
-
-    /**
-     * Validates p, q, and d according to RSA requirements.
-     * Also checks if n = p*q is suitable for 16-bit output blocks.
-     *
-     * @param p          A probable prime number.
-     * @param q          A probable prime number, distinct from p.
-     * @param privateKey The private exponent d.
-     * @return An array [isValid, n, phi, errorMessage] or null if validation fails early.
-     *         isValid is a Boolean. n and phi are BigIntegers. errorMessage is a String.
-     */
     private Object[] validateInputs(BigInteger p, BigInteger q, BigInteger privateKey) {
         outputArea.setText(""); 
 
@@ -149,28 +137,23 @@ public class RsaGui extends JFrame {
         if (!q.isProbablePrime(50)) {
             return new Object[]{false, null, null, "Error: q is not likely prime."};
         }
-
         
         if (p.equals(q)) {
             return new Object[]{false, null, null, "Error: p and q must be distinct."};
         }
 
-        
         BigInteger n = p.multiply(q);
-        BigInteger phi = eulerFunction(p, q); 
+        BigInteger phi = eulerFunction(p, q);
 
-        
         if (privateKey.compareTo(ZERO) <= 0 || privateKey.compareTo(phi) >= 0) {
             return new Object[]{false, n, phi, "Error: private key d must be > 0 and < phi(n) = " + phi};
         }
-
         
         BigInteger[] extendedGCD = euclid(privateKey, phi);
         BigInteger gcd = extendedGCD[1];
         if (!gcd.equals(ONE)) {
             return new Object[]{false, n, phi, "Error: private key d is not relatively prime to phi(n). gcd(d, phi) = " + gcd};
         }
-
         
         if (n.compareTo(MAX_N_FOR_SHORT) > 0) {
             return new Object[]{false, n, phi, "Error: n = p*q = " + n + " is too large. Must be <= " + MAX_N_FOR_SHORT + " for 16-bit encrypted blocks."};
@@ -179,11 +162,6 @@ public class RsaGui extends JFrame {
         return new Object[]{true, n, phi, null}; 
     }
 
-    /**
-     * Reads all bytes from a file.
-     * @param file The file to read.
-     * @return Byte array of file contents, or null on error.
-     */
     private byte[] readFile(File file) {
         if (file == null || !file.exists()) {
             showError("Input file not selected or does not exist.");
@@ -218,12 +196,6 @@ public class RsaGui extends JFrame {
         }
     }
 
-    /**
-     * Writes encrypted data (short values) to a file.
-     * @param file The file to write to.
-     * @param encryptedData List of BigIntegers representing encrypted blocks (assumed to fit in short).
-     * @return true if successful, false otherwise.
-     */
     private boolean writeEncryptedFile(File file, List<BigInteger> encryptedData) {
         if (file == null) {
             showError("Output file not selected.");
@@ -247,12 +219,6 @@ public class RsaGui extends JFrame {
         }
     }
 
-    /**
-     * Writes decrypted data (bytes) to a file.
-     * @param file The file to write to.
-     * @param decryptedData Byte array of decrypted data.
-     * @return true if successful, false otherwise.
-     */
     private boolean writeDecryptedFile(File file, byte[] decryptedData) {
         if (file == null) {
             showError("Output file not selected.");
@@ -272,7 +238,6 @@ public class RsaGui extends JFrame {
             return false;
         }
     }
-
     
     private void performEncryption() {
         try {
@@ -373,9 +338,6 @@ public class RsaGui extends JFrame {
             BigInteger q = new BigInteger(qField.getText().trim());
             BigInteger d = new BigInteger(dField.getText().trim()); 
 
-            
-            
-            
             Object[] validationResult = validateInputs(p, q, d);
             boolean isValid = (Boolean) validationResult[0];
             BigInteger n = (BigInteger) validationResult[1];
@@ -425,7 +387,6 @@ public class RsaGui extends JFrame {
                 showError("Encrypted input file is empty or could not be read.");
                 return;
             }
-
             
             ByteArrayOutputStream decryptedByteStream = new ByteArrayOutputStream();
             StringBuilder decryptedTextOutput = new StringBuilder();
@@ -434,16 +395,10 @@ public class RsaGui extends JFrame {
                 short encryptedShort = encryptedShorts.get(i);
                 
                 BigInteger c = BigInteger.valueOf(Short.toUnsignedInt(encryptedShort));
-
-                
                 BigInteger m = fastExponentialModular(c, d, n);
-
-                
                 
                 if (m.compareTo(BigInteger.valueOf(255)) > 0) {
                     showError("Decryption error: Resulting value " + m + " is larger than a byte for block " + i);
-                    
-                    
                     return; 
                 }
                 byte decryptedByte = m.byteValue();
@@ -483,41 +438,18 @@ public class RsaGui extends JFrame {
         }
     }
 
-
-    
-
     private void showError(String message) {
         outputArea.append("ERROR: " + message + "\n");
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    
 
-    /**
-     * Calculates Euler's totient function phi(n) for n = p*q where p and q are primes.
-     * phi(n) = (p-1) * (q-1)
-     */
     private static BigInteger eulerFunction(BigInteger p, BigInteger q) {
         
         return p.subtract(ONE).multiply(q.subtract(ONE));
     }
 
-    /**
-     * Extended Euclidean Algorithm.
-     * Finds [d, gcd] such that d*a + y*b = gcd(a, b).
-     * In our case, we want d such that d*e = 1 (mod phi), so we call euclid(e, phi).
-     * The result[0] will be the modular inverse (d or y depending on implementation).
-     * The result[1] will be the gcd.
-     *
-     * @param a First number (e.g., the private key 'd' or public key 'e')
-     * @param b Second number (e.g., phi(n))
-     * @return BigInteger array {inverse, gcd} where inverse*a + some_y*b = gcd
-     */
     private static BigInteger[] euclid(BigInteger a, BigInteger b) {
-        
-        
-        
-        
 
         BigInteger[] result = new BigInteger[2];
         if (b.equals(ZERO)) {
@@ -548,23 +480,11 @@ public class RsaGui extends JFrame {
             y1 = temp_y;
         }
 
-        
-        
         result[0] = x2; 
         result[1] = a;  
         return result;
     }
 
-
-    /**
-     * Fast Modular Exponentiation (Right-to-Left Binary Method).
-     * Calculates (number ^ exponent) mod divider.
-     *
-     * @param number   The base.
-     * @param exponent The exponent.
-     * @param divider  The modulus.
-     * @return The result of (number ^ exponent) mod divider.
-     */
     private static BigInteger fastExponentialModular(BigInteger number, BigInteger exponent, BigInteger divider) {
         
         if (exponent.signum() < 0) {
@@ -578,13 +498,8 @@ public class RsaGui extends JFrame {
         BigInteger result = ONE;
         BigInteger base = number.mod(divider); 
 
-        
         byte[] exponentBytes = exponent.toByteArray();
-        
-        
-        
 
-        
         for (int i = 0; i < exponent.bitLength(); i++) {
             if (exponent.testBit(i)) { 
                 result = result.multiply(base).mod(divider);
@@ -596,8 +511,6 @@ public class RsaGui extends JFrame {
         return result;
     }
 
-
-    
     public static void main(String[] args) {
         
         SwingUtilities.invokeLater(() -> {
