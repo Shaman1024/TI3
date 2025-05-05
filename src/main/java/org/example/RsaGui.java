@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
-
-
 public class RsaGui extends JFrame {
 
     private JTextField pField, qField, dField;
@@ -28,7 +26,7 @@ public class RsaGui extends JFrame {
     private static final BigInteger MAX_N_FOR_SHORT = BigInteger.valueOf(65535); 
 
     public RsaGui() {
-        super("RSA File Encryptor/Decryptor");
+        super("Shaminko RSA");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 500);
         setLocationRelativeTo(null); 
