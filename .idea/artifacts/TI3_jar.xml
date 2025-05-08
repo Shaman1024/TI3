@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TI3:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TI3_jar</output-path>
+    <root id="archive" name="TI3.jar">
+      <element id="module-output" name="TI3" />
+    </root>
+  </artifact>
+</component>
